@@ -1,0 +1,16 @@
+- A function to display the cards in hand
+- user input validation
+- return card or go gish random card
+- deck class
+- show completed books/ stacks
+- if completed, remove cards
+- play again?(optional)
+- solitare cards like jumping out at you (optional)
+- Difficulty level (asked at the beginning of the game)
+- game over when 7 decks for one person or both hands are empty
+- statistics
+	- avg number of cards handed over with each requrest
+	- most popular rank (mode)
+	- number of turns
+	- duration
+	- recieve to fish ratio for both players
