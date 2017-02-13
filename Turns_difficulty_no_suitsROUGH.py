@@ -44,10 +44,8 @@ def Computer_Response(hand, level, card):
     
 
 
-#function to determine books
-##def books(hand)
 
-
+# adds correct number of cards to hand that asked for them
 def add_cards(hand,card,num):
     x = 0
     while x < num:
@@ -55,7 +53,7 @@ def add_cards(hand,card,num):
         x += 1
     return hand
     
-
+#removes the correct number of cards from the hand that had them
 def remove_cards(hand,card,num):
     x = 0
     while x < num:
@@ -63,6 +61,7 @@ def remove_cards(hand,card,num):
         x += 1
     return hand
 
+#gets the number of cards of the type asked for from the asked hand
 def num_cards_of_type_asked(hand,card):
     global TOTAL_CARDS_PASSED
     num_cards = 0
@@ -73,16 +72,22 @@ def num_cards_of_type_asked(hand,card):
 
     return num_cards
 
+#makes sure that the deck is not empty before they draw a card. 
 def Go_Fish(turn):
     global deck
-    if deck == [] or deck == 0 or deck == None:
-        if turn is 1:
-            Player_Turn()
-        else:
-            Computer_Turn()
+    deck_empty = False
+    print (len(deck))
+    if len(deck) == 0:
+        deck_empty = True
+##        print (len(deck))
+##        if turn is 1:
+##            Player_Turn()
+##        else:
+##            Computer_Turn()
 
     else:
         print ("\nGo fish...\n")
+    return deck_empty
 
 def make_books(player, counter):
     # index of rank array is a mapping to num_decks
@@ -92,7 +97,7 @@ def make_books(player, counter):
     for card in player:
         # increments appropriate rank counter for each card
         num_decks[ranks.index(card)] +=1
-    for i in range(12):
+    for i in range(13):
         # 4 cards of a rank in the hand
         if num_decks[i]>= 4:
             # increment deck counter
@@ -131,11 +136,11 @@ def Player_Turn():
     global PLAYER_HAND
     
     global deck
-    if PLAYER_HAND == 0 or PLAYER_HAND == None or PLAYER_HAND == []:
+    if len(PLAYER_HAND) == 0  and len(deck) !=0 :
         drawn_card = deck[random.randint(0,len(deck)-1)]
         PLAYER_HAND.append(drawn_card)
         deck.remove(drawn_card)
-    else:
+    elif len(PLAYER_HAND) !=0:
         print("YOUR HAND: ",PLAYER_HAND,"\n")
         card = input ("What do you ask for? ")
         response = Computer_Response(COMPUTER_HAND, difficulty_level, card) # function to determine computer response
@@ -146,87 +151,99 @@ def Player_Turn():
             COMPUTER_HAND = remove_cards(COMPUTER_HAND,card,num_cards)
             PLAYER_HAND.sort()
             print ("YOUR HAND: ",PLAYER_HAND,"\n")
-            print (COMPUTER_HAND) ##delete P
+##            print (COMPUTER_HAND) ##delete P
         else:
-            Go_Fish(0)
-            drawn_card = deck[random.randint(0,len(deck)-1)]
-            PLAYER_HAND.append(drawn_card)
-            deck.remove(drawn_card)
-            print("You drew a ",drawn_card,"\n")
-            if drawn_card == card:
-                card_2 = input ("You drew what you asked for, ask for another card: \n")
-                PLAYER_HAND.sort()
-                print ("YOUR HAND: ",PLAYER_HAND,"\n")
-                reponse = Computer_Response(COMPUTER_HAND, difficulty_level,card_2) # function to determine computer response
-                num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_2)
-                if response == True:
-                    PLAYER_HAND = add_cards(PLAYER_HAND,card_2,num_cards)
-                    COMPUTER_HAND = remove_cards(COMPUTER_HAND,card_2,num_cards)
-
-                else:
-                    Go_Fish(0)
-                    #print("\nComputer: Go fish!\n")
-                    drawn_card = deck[random.randint(0,len(deck)-1)]
-                    PLAYER_HAND.append(drawn_card)
-                    deck.remove(drawn_card)
+            if not Go_Fish(0):
+                drawn_card = deck[random.randint(0,len(deck)-1)]
+                PLAYER_HAND.append(drawn_card)
+                deck.remove(drawn_card)
+                print("You drew a ",drawn_card,"\n")
+                if drawn_card == card:
+                    card_2 = input ("You drew what you asked for, ask for another card: ")
                     PLAYER_HAND.sort()
                     print ("YOUR HAND: ",PLAYER_HAND,"\n")
-            else:
-                #drawn_card = deck[random.randint(0,len(deck)-1)]
-                ##PLAYER_HAND.append(drawn_card)
-                
-                PLAYER_HAND.sort()
-                print ("YOUR HAND:",PLAYER_HAND,"\n")
+                    reponse = Computer_Response(COMPUTER_HAND, difficulty_level,card_2) # function to determine computer response
+                    num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_2)
+                    if response == True:
+                        PLAYER_HAND = add_cards(PLAYER_HAND,card_2,num_cards)
+                        COMPUTER_HAND = remove_cards(COMPUTER_HAND,card_2,num_cards)
+
+                    else:
+                        if not Go_Fish(0):
+                        #print("\nComputer: Go fish!\n")
+                            drawn_card = deck[random.randint(0,len(deck)-1)]
+                            PLAYER_HAND.append(drawn_card)
+                            deck.remove(drawn_card)
+                            PLAYER_HAND.sort()
+                            print ("YOUR HAND: ",PLAYER_HAND,"\n")
+                else:
+                    #drawn_card = deck[random.randint(0,len(deck)-1)]
+                    ##PLAYER_HAND.append(drawn_card)
+                    
+                    PLAYER_HAND.sort()
+                    print ("YOUR HAND:",PLAYER_HAND,"\n")
+    else:
+        print ("end game")
+           
     PLAYER_HAND, PLAYER_SCORE = make_books(PLAYER_HAND,PLAYER_SCORE)
-    if len(deck) != 0 and PLAYER_HAND != 0 and COMPUTER_HAND !=0: # while game is going
+    if len(deck) != 0 or len(PLAYER_HAND) != 0 or len(COMPUTER_HAND) !=0: # while game is going
+##        print (type(PLAYER_HAND),type(COMPUTER_HAND))
         #print("YOUR HAND: ",PLAYER_HAND,"\n")
         Computer_Turn()
     else:
         print("End game")
 
 def Computer_Turn():
+    global PLAYER_SCORE
+    global COMPUTER_SCORE
     global COMPUTER_HAND
     global PLAYER_HAND
     global deck
     global difficulty_level
-    if COMPUTER_HAND == 0 or COMPUTER_HAND == None or COMPUTER_HAND == []:
+    ## handles case when computer's hand is empty. they draw a card and pass the turn
+    if len(COMPUTER_HAND) == 0 and len(deck) != 0:
         drawn_card = deck[random.randint(0,len(deck)-1)]
         PLAYER_HAND.append(drawn_card)
         deck.remove(drawn_card)
-    else:
+    elif len(COMPUTER_HAND) != 0:
+        #easy difficulty
         if difficulty_level == "1":
             card_asked = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-1)]
             print ("Computer: Do you have any",card_asked,"\n")
             num_cards = num_cards_of_type_asked(PLAYER_HAND,card_asked)
-            if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
+            if card_asked in PLAYER_HAND: 
                 COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
                 PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_cards)
                 print("The computer took your ",card_asked,"\n")
             else:
-                Go_Fish(1)
-                drawn_card = deck[random.randint(0,len(deck)-1)]
-                COMPUTER_HAND.append(drawn_card)
-                deck.remove(drawn_card)
-                if drawn_card == card_asked:
-                   print ("I got what I asked for!\n")
-                   card_asked2 = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-2)]
-                   print ("Do you have any",card_asked2,"\n")
-                   num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
-                   if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
-                       COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
-                       PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_Cards)
-                   else:
-                       Go_Fish(1)
-                       drawn_card_2 = deck[random.randint(0,len(deck)-1)]
-                       COMPUTER_HAND.append(drawn_card_2)
-                       deck.remove(drawn_card)
-            if len(deck) != 0 and PLAYER_HAND != 0 and COMPUTER_HAND !=0: # while game is going
+                if not Go_Fish(1):#checks to see if there are cards in the deck that can be drawn
+                    drawn_card = deck[random.randint(0,len(deck)-1)]
+                    COMPUTER_HAND.append(drawn_card)
+                    deck.remove(drawn_card)
+                    if drawn_card == card_asked:
+                       print ("Computer: I got what I asked for!\n")
+                       card_asked2 = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-2)]
+                       print ("Computer: Do you have any",card_asked2,"\n")
+                       num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
+                       if card_asked in PLAYER_HAND: 
+                           COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
+                           PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_Cards)
+                       else:
+                           if not Go_Fish(1): #checks to see if there are cards in the deck to draw
+                               drawn_card_2 = deck[random.randint(0,len(deck)-1)]
+                               COMPUTER_HAND.append(drawn_card_2)
+                               deck.remove(drawn_card_2)
+            #check to see if game is over, if not go to the next player
+            COMPUTER_HAND, COMPUTER_SCORE = make_books(COMPUTER_HAND,COMPUTER_SCORE)
+            if len(deck) != 0 or len(PLAYER_HAND) != 0 or len(COMPUTER_HAND) !=0: # while game is going
                 Player_Turn()
+            else:
+                print ("end game")
                         
         # Medium Difficulty 
         if difficulty_level == "2":
             card_asked = COMPUTER_HAND[len(COMPUTER_HAND)-1]
-            print ("Do you have any",card_asked, "\n")
+            print ("Computer: Do you have any",card_asked, "\n")
             num_cards = num_cards_of_type_asked(PLAYER_HAND,card_asked)
             if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
                 COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
@@ -234,57 +251,64 @@ def Computer_Turn():
                 print("The computer took your ",card_asked,"\n")
     ##            print ("comp hand", COMPUTER_HAND)
             else:
-                Go_Fish(1)
-                drawn_card = deck[random.randint(0,len(deck)-1)]
-                COMPUTER_HAND.append(drawn_card)
-    ##            print ("comp hand", COMPUTER_HAND)
-                deck.remove(drawn_card)
+                if not Go_Fish(1):
+                    drawn_card = deck[random.randint(0,len(deck)-1)]
+                    COMPUTER_HAND.append(drawn_card)
+        ##            print ("comp hand", COMPUTER_HAND)
+                    deck.remove(drawn_card)
                 if drawn_card == card_asked:
-                   print ("I got what I asked for!\n")
+                   print ("Computer: I got what I asked for!\n")
                    card_asked2 = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-2)]
-                   print ("Do you have any",card_asked2,"\n")
+                   print ("Computer: Do you have any",card_asked2,"\n")
                    num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
-                   if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
+                   if card_asked in PLAYER_HAND: 
                        COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
                        PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_Cards)
                    else:
-                       Go_Fish(1)
-                       drawn_card_2 = deck[random.randint(0,len(deck)-1)]
-                       COMPUTER_HAND.append(drawn_card_2)
-                       deck.remove(drawn_card)
-            if len(deck) != 0 and PLAYER_HAND != 0 and COMPUTER_HAND !=0: # while game is going
+                       if not Go_Fish(1):
+                           drawn_card_2 = deck[random.randint(0,len(deck)-1)]
+                           COMPUTER_HAND.append(drawn_card_2)
+                           deck.remove(drawn_card_2)
+            # checks to see if game is over, if not goes to next turn
+            COMPUTER_HAND, COMPUTER_SCORE = make_books(COMPUTER_HAND, COMPUTER_SCORE)
+            if len(deck) != 0 or len(PLAYER_HAND) != 0 or (COMPUTER_HAND !=0): # while game is going
                 Player_Turn()
+            else:
+                print ("end game")
                 
         #Hard Difficulty    
         if difficulty_level == "3":
             card_asked = COMPUTER_HAND[len(COMPUTER_HAND)-1]
-            print ("Do you have any",card_asked, "\n")
+            print ("Computer: Do you have any",card_asked, "\n")
             num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
-            if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
+            if card_asked in PLAYER_HAND: 
                 COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
                 PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_cards)
                 print("The computer took your ",card_asked,"\n")
             else:
-                Go_Fish(1)
-                drawn_card = deck[random.randint(0,len(deck)-1)]
-                COMPUTER_HAND.append(drawn_card)
-                print ("comp hand", COMPUTER_HAND)
-                deck.remove(drawn_card)
-                if drawn_card == card_asked:
-                   print ("I got what I asked for!\n")
-                   card_asked2 = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-2)]
-                   print ("Do you have any",card_asked2,"\n")
-                   num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
-                   if card_asked in PLAYER_HAND: #NEEDS TO CHECK THE NUMBER OF COPYIES OF THE CARD IN OTHER HAND
-                       COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
-                       PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_Cards)
-                   else:
-                       Go_Fish(1)
-                       drawn_card_2 = deck[random.randint(0,len(deck)-1)]
-                       COMPUTER_HAND.append(drawn_card_2)
-                       deck.remove(drawn_card)
-            if len(deck) != 0 and PLAYER_HAND != 0 and COMPUTER_HAND !=0: # while game is going
+                if not Go_Fish(1):
+                    drawn_card = deck[random.randint(0,len(deck)-1)]
+                    COMPUTER_HAND.append(drawn_card)
+                    deck.remove(drawn_card)
+                    if drawn_card == card_asked:
+                       print ("Computer: I got what I asked for!\n")
+                       card_asked2 = COMPUTER_HAND[random.randint(0,len(COMPUTER_HAND)-2)]
+                       print ("Computer: Do you have any",card_asked2,"\n")
+                       num_cards = num_cards_of_type_asked(COMPUTER_HAND,card_asked)
+                       if card_asked in PLAYER_HAND: 
+                           COMPUTER_HAND = add_cards(COMPUTER_HAND,card_asked,num_cards)
+                           PLAYER_HAND = remove_cards(PLAYER_HAND,card_asked,num_Cards)
+                       else:
+                           if not Go_Fish(1):
+                               drawn_card_2 = deck[random.randint(0,len(deck)-1)]
+                               COMPUTER_HAND.append(drawn_card_2)
+                               deck.remove(drawn_card_2)
+            #checks if game is over if not, changes turn
+            COMPUTER_HAND, COMPUTER_SCORE = make_books(COMPUTER_HAND, COMPUTER_SCORE)
+            if len(deck) != 0 or len(PLAYER_HAND) != 0 or len(COMPUTER_HAND) !=0: # while game is going
                 Player_Turn()
+    else:
+        print("end game")
 
 
 Player_Turn()
